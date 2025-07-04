@@ -346,7 +346,7 @@ impl<R: ServiceRole> Peer<R> {
     pub(crate) fn new(
         request_id_provider: Arc<dyn RequestIdProvider>,
         peer_info: Option<R::PeerInfo>,
-    ) -> (Peer<R>, ProxyOutbound<R>) {
+    ) -> (Self, ProxyOutbound<R>) {
         let (tx, rx) = mpsc::channel(Self::CLIENT_CHANNEL_BUFFER_SIZE);
         (
             Self {
@@ -465,7 +465,7 @@ impl<R: ServiceRole, S: Service<R>> RunningService<R, S> {
         self.handle.await
     }
     pub async fn cancel(self) -> Result<QuitReason, tokio::task::JoinError> {
-        let RunningService { dg, handle, .. } = self;
+        let Self { dg, handle, .. } = self;
         dg.disarm().cancel();
         handle.await
     }

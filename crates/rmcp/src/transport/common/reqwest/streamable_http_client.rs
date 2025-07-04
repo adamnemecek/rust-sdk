@@ -126,7 +126,7 @@ impl StreamableHttpClient for reqwest::Client {
 
 impl StreamableHttpClientTransport<reqwest::Client> {
     pub fn from_uri(uri: impl Into<Arc<str>>) -> Self {
-        StreamableHttpClientTransport::with_client(
+        Self::with_client(
             reqwest::Client::default(),
             StreamableHttpClientTransportConfig {
                 uri: uri.into(),

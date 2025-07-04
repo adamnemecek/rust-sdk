@@ -50,7 +50,7 @@ pub enum StreamableHttpError<E: std::error::Error + Send + Sync + 'static> {
 
 impl From<reqwest::Error> for StreamableHttpError<reqwest::Error> {
     fn from(e: reqwest::Error) -> Self {
-        StreamableHttpError::Client(e)
+        Self::Client(e)
     }
 }
 
@@ -488,7 +488,7 @@ pub type StreamableHttpClientTransport<C> = WorkerTransport<StreamableHttpClient
 impl<C: StreamableHttpClient> StreamableHttpClientTransport<C> {
     pub fn with_client(client: C, config: StreamableHttpClientTransportConfig) -> Self {
         let worker = StreamableHttpClientWorker::new(client, config);
-        WorkerTransport::spawn(worker)
+        Self::spawn(worker)
     }
 }
 #[derive(Debug, Clone)]

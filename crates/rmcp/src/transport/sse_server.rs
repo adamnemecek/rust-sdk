@@ -259,7 +259,7 @@ impl SseServer {
         Ok(sse_server)
     }
 
-    pub fn new(config: SseServerConfig) -> (SseServer, Router) {
+    pub fn new(config: SseServerConfig) -> (Self, Router) {
         let (app, transport_rx) = App::new(
             config.post_path.clone(),
             config.sse_keep_alive.unwrap_or(DEFAULT_AUTO_PING_INTERVAL),
@@ -269,7 +269,7 @@ impl SseServer {
             .route(&config.post_path, post(post_event_handler))
             .with_state(app);
 
-        let server = SseServer {
+        let server = Self {
             transport_rx,
             config,
         };

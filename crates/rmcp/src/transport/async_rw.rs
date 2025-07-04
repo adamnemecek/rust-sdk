@@ -244,7 +244,7 @@ impl From<JsonRpcMessageCodecError> for std::io::Error {
     fn from(value: JsonRpcMessageCodecError) -> Self {
         match value {
             JsonRpcMessageCodecError::MaxLineLengthExceeded => {
-                std::io::Error::new(std::io::ErrorKind::InvalidData, value)
+                Self::new(std::io::ErrorKind::InvalidData, value)
             }
             JsonRpcMessageCodecError::Serde(e) => e.into(),
             JsonRpcMessageCodecError::Io(e) => e,

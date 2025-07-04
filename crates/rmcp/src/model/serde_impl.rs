@@ -70,7 +70,7 @@ where
         if let Some(meta) = _meta {
             extensions.insert(meta);
         }
-        Ok(Request {
+        Ok(Self {
             extensions,
             method: body.method,
             params: body.params._rest,
@@ -122,7 +122,7 @@ where
         if let Some(meta) = _meta {
             extensions.insert(meta);
         }
-        Ok(RequestOptionalParam {
+        Ok(Self {
             extensions,
             method: body.method,
             params,
@@ -159,7 +159,7 @@ where
     {
         let body = ProxyNoParam::<_>::deserialize(deserializer)?;
         let extensions = Extensions::new();
-        Ok(RequestNoParam {
+        Ok(Self {
             extensions,
             method: body.method,
         })
@@ -205,7 +205,7 @@ where
         if let Some(meta) = _meta {
             extensions.insert(meta);
         }
-        Ok(Notification {
+        Ok(Self {
             extensions,
             method: body.method,
             params: body.params._rest,
@@ -242,7 +242,7 @@ where
     {
         let body = ProxyNoParam::<_>::deserialize(deserializer)?;
         let extensions = Extensions::new();
-        Ok(NotificationNoParam {
+        Ok(Self {
             extensions,
             method: body.method,
         })

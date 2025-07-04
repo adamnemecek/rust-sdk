@@ -49,8 +49,8 @@ pub struct Extensions {
 impl Extensions {
     /// Create an empty `Extensions`.
     #[inline]
-    pub const fn new() -> Extensions {
-        Extensions { map: None }
+    pub const fn new() -> Self {
+        Self { map: None }
     }
 
     /// Insert a type into this `Extensions`.

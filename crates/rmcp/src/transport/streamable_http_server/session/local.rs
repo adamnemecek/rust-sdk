@@ -165,13 +165,13 @@ impl std::str::FromStr for EventId {
         if let Some((index, request_id)) = s.split_once("/") {
             let index = usize::from_str(index).map_err(EventIdParseError::InvalidIndex)?;
             let request_id = u64::from_str(request_id).map_err(EventIdParseError::InvalidIndex)?;
-            Ok(EventId {
+            Ok(Self {
                 http_request_id: Some(request_id),
                 index,
             })
         } else {
             let index = usize::from_str(s).map_err(EventIdParseError::InvalidIndex)?;
-            Ok(EventId {
+            Ok(Self {
                 http_request_id: None,
                 index,
             })
@@ -308,7 +308,7 @@ impl From<SessionError> for std::io::Error {
     fn from(value: SessionError) -> Self {
         match value {
             SessionError::Io(io) => io,
-            _ => std::io::Error::new(std::io::ErrorKind::Other, format!("Session error: {value}")),
+            _ => Self::new(std::io::ErrorKind::Other, format!("Session error: {value}")),
         }
     }
 }

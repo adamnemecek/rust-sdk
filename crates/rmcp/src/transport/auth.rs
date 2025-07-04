@@ -662,18 +662,18 @@ impl OAuthState {
             manager.with_client(client)?;
         }
 
-        Ok(OAuthState::Unauthorized(manager))
+        Ok(Self::Unauthorized(manager))
     }
 
     /// Get client_id and OAuth credentials
     pub async fn get_credentials(&self) -> Result<Credentials, AuthError> {
         // return client_id and credentials
         match self {
-            OAuthState::Unauthorized(manager) | OAuthState::Authorized(manager) => {
+            Self::Unauthorized(manager) | Self::Authorized(manager) => {
                 manager.get_credentials().await
             }
-            OAuthState::Session(session) => session.get_credentials().await,
-            OAuthState::AuthorizedHttpClient(client) => client.auth_manager.get_credentials().await,
+            Self::Session(session) => session.get_credentials().await,
+            Self::AuthorizedHttpClient(client) => client.auth_manager.get_credentials().await,
         }
     }
 
@@ -684,7 +684,7 @@ impl OAuthState {
         client_id: &str,
         credentials: OAuthTokenResponse,
     ) -> Result<(), AuthError> {
-        if let OAuthState::Unauthorized(manager) = self {
+        if let Self::Unauthorized(manager) = self {
             let mut manager = std::mem::replace(
                 manager,
                 AuthorizationManager::new("http://localhost").await?,
@@ -700,7 +700,7 @@ impl OAuthState {
             // set client id and secret
             manager.configure_client_id(client_id)?;
 
-            *self = OAuthState::Authorized(manager);
+            *self = Self::Authorized(manager);
             Ok(())
         } else {
             Err(AuthError::InternalError(
@@ -715,16 +715,16 @@ impl OAuthState {
         scopes: &[&str],
         redirect_uri: &str,
     ) -> Result<(), AuthError> {
-        if let OAuthState::Unauthorized(mut manager) = std::mem::replace(
+        if let Self::Unauthorized(mut manager) = std::mem::replace(
             self,
-            OAuthState::Unauthorized(AuthorizationManager::new("http://localhost").await?),
+            Self::Unauthorized(AuthorizationManager::new("http://localhost").await?),
         ) {
             debug!("start discovery");
             let metadata = manager.discover_metadata().await?;
             manager.metadata = Some(metadata);
             debug!("start session");
             let session = AuthorizationSession::new(manager, scopes, redirect_uri).await?;
-            *self = OAuthState::Session(session);
+            *self = Self::Session(session);
             Ok(())
         } else {
             Err(AuthError::InternalError(
@@ -735,11 +735,11 @@ impl OAuthState {
 
     /// complete authorization
     pub async fn complete_authorization(&mut self) -> Result<(), AuthError> {
-        if let OAuthState::Session(session) = std::mem::replace(
+        if let Self::Session(session) = std::mem::replace(
             self,
-            OAuthState::Unauthorized(AuthorizationManager::new("http://localhost").await?),
+            Self::Unauthorized(AuthorizationManager::new("http://localhost").await?),
         ) {
-            *self = OAuthState::Authorized(session.auth_manager);
+            *self = Self::Authorized(session.auth_manager);
             Ok(())
         } else {
             Err(AuthError::InternalError("Not in session state".to_string()))
@@ -747,11 +747,11 @@ impl OAuthState {
     }
     /// covert to authorized http client
     pub async fn to_authorized_http_client(&mut self) -> Result<(), AuthError> {
-        if let OAuthState::Authorized(manager) = std::mem::replace(
+        if let Self::Authorized(manager) = std::mem::replace(
             self,
-            OAuthState::Authorized(AuthorizationManager::new("http://localhost").await?),
+            Self::Authorized(AuthorizationManager::new("http://localhost").await?),
         ) {
-            *self = OAuthState::AuthorizedHttpClient(AuthorizedHttpClient::new(
+            *self = Self::AuthorizedHttpClient(AuthorizedHttpClient::new(
                 Arc::new(manager),
                 None,
             ));
@@ -765,14 +765,14 @@ impl OAuthState {
     /// get current authorization url
     pub async fn get_authorization_url(&self) -> Result<String, AuthError> {
         match self {
-            OAuthState::Session(session) => Ok(session.get_authorization_url().to_string()),
-            OAuthState::Unauthorized(_) => {
+            Self::Session(session) => Ok(session.get_authorization_url().to_string()),
+            Self::Unauthorized(_) => {
                 Err(AuthError::InternalError("Not in session state".to_string()))
             }
-            OAuthState::Authorized(_) => {
+            Self::Authorized(_) => {
                 Err(AuthError::InternalError("Already authorized".to_string()))
             }
-            OAuthState::AuthorizedHttpClient(_) => {
+            Self::AuthorizedHttpClient(_) => {
                 Err(AuthError::InternalError("Already authorized".to_string()))
             }
         }
@@ -781,17 +781,17 @@ impl OAuthState {
     /// handle authorization callback
     pub async fn handle_callback(&mut self, code: &str) -> Result<(), AuthError> {
         match self {
-            OAuthState::Session(session) => {
+            Self::Session(session) => {
                 session.handle_callback(code).await?;
                 self.complete_authorization().await
             }
-            OAuthState::Unauthorized(_) => {
+            Self::Unauthorized(_) => {
                 Err(AuthError::InternalError("Not in session state".to_string()))
             }
-            OAuthState::Authorized(_) => {
+            Self::Authorized(_) => {
                 Err(AuthError::InternalError("Already authorized".to_string()))
             }
-            OAuthState::AuthorizedHttpClient(_) => {
+            Self::AuthorizedHttpClient(_) => {
                 Err(AuthError::InternalError("Already authorized".to_string()))
             }
         }
@@ -800,14 +800,14 @@ impl OAuthState {
     /// get access token
     pub async fn get_access_token(&self) -> Result<String, AuthError> {
         match self {
-            OAuthState::Unauthorized(manager) => manager.get_access_token().await,
-            OAuthState::Session(_) => {
+            Self::Unauthorized(manager) => manager.get_access_token().await,
+            Self::Session(_) => {
                 Err(AuthError::InternalError("Not in manager state".to_string()))
             }
-            OAuthState::Authorized(_) => {
+            Self::Authorized(_) => {
                 Err(AuthError::InternalError("Already authorized".to_string()))
             }
-            OAuthState::AuthorizedHttpClient(_) => {
+            Self::AuthorizedHttpClient(_) => {
                 Err(AuthError::InternalError("Already authorized".to_string()))
             }
         }
@@ -816,17 +816,17 @@ impl OAuthState {
     /// refresh access token
     pub async fn refresh_token(&self) -> Result<(), AuthError> {
         match self {
-            OAuthState::Unauthorized(_) => {
+            Self::Unauthorized(_) => {
                 Err(AuthError::InternalError("Not in manager state".to_string()))
             }
-            OAuthState::Session(_) => {
+            Self::Session(_) => {
                 Err(AuthError::InternalError("Not in manager state".to_string()))
             }
-            OAuthState::Authorized(manager) => {
+            Self::Authorized(manager) => {
                 manager.refresh_token().await?;
                 Ok(())
             }
-            OAuthState::AuthorizedHttpClient(_) => {
+            Self::AuthorizedHttpClient(_) => {
                 Err(AuthError::InternalError("Already authorized".to_string()))
             }
         }
@@ -834,7 +834,7 @@ impl OAuthState {
 
     pub fn into_authorization_manager(self) -> Option<AuthorizationManager> {
         match self {
-            OAuthState::Authorized(manager) => Some(manager),
+            Self::Authorized(manager) => Some(manager),
             _ => None,
         }
     }

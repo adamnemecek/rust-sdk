@@ -41,7 +41,7 @@ pub enum SseTransportError<E: std::error::Error + Send + Sync + 'static> {
 
 impl From<reqwest::Error> for SseTransportError<reqwest::Error> {
     fn from(e: reqwest::Error) -> Self {
-        SseTransportError::Client(e)
+        Self::Client(e)
     }
 }
 

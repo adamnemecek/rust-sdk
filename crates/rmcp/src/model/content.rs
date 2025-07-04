@@ -72,26 +72,26 @@ impl RawContent {
                 )),
             )
         })?;
-        Ok(RawContent::text(json))
+        Ok(Self::text(json))
     }
 
     pub fn text<S: Into<String>>(text: S) -> Self {
-        RawContent::Text(RawTextContent { text: text.into() })
+        Self::Text(RawTextContent { text: text.into() })
     }
 
     pub fn image<S: Into<String>, T: Into<String>>(data: S, mime_type: T) -> Self {
-        RawContent::Image(RawImageContent {
+        Self::Image(RawImageContent {
             data: data.into(),
             mime_type: mime_type.into(),
         })
     }
 
     pub fn resource(resource: ResourceContents) -> Self {
-        RawContent::Resource(RawEmbeddedResource { resource })
+        Self::Resource(RawEmbeddedResource { resource })
     }
 
     pub fn embedded_text<S: Into<String>, T: Into<String>>(uri: S, content: T) -> Self {
-        RawContent::Resource(RawEmbeddedResource {
+        Self::Resource(RawEmbeddedResource {
             resource: ResourceContents::TextResourceContents {
                 uri: uri.into(),
                 mime_type: Some("text".to_string()),
@@ -103,7 +103,7 @@ impl RawContent {
     /// Get the text content if this is a TextContent variant
     pub fn as_text(&self) -> Option<&RawTextContent> {
         match self {
-            RawContent::Text(text) => Some(text),
+            Self::Text(text) => Some(text),
             _ => None,
         }
     }
@@ -111,7 +111,7 @@ impl RawContent {
     /// Get the image content if this is an ImageContent variant
     pub fn as_image(&self) -> Option<&RawImageContent> {
         match self {
-            RawContent::Image(image) => Some(image),
+            Self::Image(image) => Some(image),
             _ => None,
         }
     }
@@ -119,7 +119,7 @@ impl RawContent {
     /// Get the resource content if this is an ImageContent variant
     pub fn as_resource(&self) -> Option<&RawEmbeddedResource> {
         match self {
-            RawContent::Resource(resource) => Some(resource),
+            Self::Resource(resource) => Some(resource),
             _ => None,
         }
     }

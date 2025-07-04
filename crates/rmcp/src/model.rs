@@ -164,11 +164,11 @@ impl<'de> Deserialize<'de> for ProtocolVersion {
         let s: String = Deserialize::deserialize(deserializer)?;
         #[allow(clippy::single_match)]
         match s.as_str() {
-            "2024-11-05" => return Ok(ProtocolVersion::V_2024_11_05),
-            "2025-03-26" => return Ok(ProtocolVersion::V_2025_03_26),
+            "2024-11-05" => return Ok(Self::V_2024_11_05),
+            "2025-03-26" => return Ok(Self::V_2025_03_26),
             _ => {}
         }
-        Ok(ProtocolVersion(Cow::Owned(s)))
+        Ok(Self(Cow::Owned(s)))
     }
 }
 
@@ -187,8 +187,8 @@ pub enum NumberOrString {
 impl NumberOrString {
     pub fn into_json_value(self) -> Value {
         match self {
-            NumberOrString::Number(n) => Value::Number(serde_json::Number::from(n)),
-            NumberOrString::String(s) => Value::String(s.to_string()),
+            Self::Number(n) => Value::Number(serde_json::Number::from(n)),
+            Self::String(s) => Value::String(s.to_string()),
         }
     }
 }
@@ -196,8 +196,8 @@ impl NumberOrString {
 impl std::fmt::Display for NumberOrString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            NumberOrString::Number(n) => n.fmt(f),
-            NumberOrString::String(s) => s.fmt(f),
+            Self::Number(n) => n.fmt(f),
+            Self::String(s) => s.fmt(f),
         }
     }
 }
@@ -208,8 +208,8 @@ impl Serialize for NumberOrString {
         S: serde::Serializer,
     {
         match self {
-            NumberOrString::Number(n) => n.serialize(serializer),
-            NumberOrString::String(s) => s.serialize(serializer),
+            Self::Number(n) => n.serialize(serializer),
+            Self::String(s) => s.serialize(serializer),
         }
     }
 }
@@ -221,11 +221,11 @@ impl<'de> Deserialize<'de> for NumberOrString {
     {
         let value: Value = Deserialize::deserialize(deserializer)?;
         match value {
-            Value::Number(n) => Ok(NumberOrString::Number(
+            Value::Number(n) => Ok(Self::Number(
                 n.as_u64()
                     .ok_or(serde::de::Error::custom("Expect an integer"))? as u32,
             )),
-            Value::String(s) => Ok(NumberOrString::String(s.into())),
+            Value::String(s) => Ok(Self::String(s.into())),
             _ => Err(serde::de::Error::custom("Expect number or string")),
         }
     }
@@ -499,8 +499,8 @@ pub enum JsonRpcBatchRequestItem<Req, Not> {
 impl<Req, Not> JsonRpcBatchRequestItem<Req, Not> {
     pub fn into_non_batch_message<Resp>(self) -> JsonRpcMessage<Req, Resp, Not> {
         match self {
-            JsonRpcBatchRequestItem::Request(r) => JsonRpcMessage::Request(r),
-            JsonRpcBatchRequestItem::Notification(n) => JsonRpcMessage::Notification(n),
+            Self::Request(r) => JsonRpcMessage::Request(r),
+            Self::Notification(n) => JsonRpcMessage::Notification(n),
         }
     }
 }
@@ -516,8 +516,8 @@ pub enum JsonRpcBatchResponseItem<Resp> {
 impl<Resp> JsonRpcBatchResponseItem<Resp> {
     pub fn into_non_batch_message<Req, Not>(self) -> JsonRpcMessage<Req, Resp, Not> {
         match self {
-            JsonRpcBatchResponseItem::Response(r) => JsonRpcMessage::Response(r),
-            JsonRpcBatchResponseItem::Error(e) => JsonRpcMessage::Error(e),
+            Self::Response(r) => JsonRpcMessage::Response(r),
+            Self::Error(e) => JsonRpcMessage::Error(e),
         }
     }
 }
@@ -548,7 +548,7 @@ pub enum JsonRpcMessage<Req = Request, Resp = DefaultResponse, Noti = Notificati
 impl<Req, Resp, Not> JsonRpcMessage<Req, Resp, Not> {
     #[inline]
     pub const fn request(request: Req, id: RequestId) -> Self {
-        JsonRpcMessage::Request(JsonRpcRequest {
+        Self::Request(JsonRpcRequest {
             jsonrpc: JsonRpcVersion2_0,
             id,
             request,
@@ -556,7 +556,7 @@ impl<Req, Resp, Not> JsonRpcMessage<Req, Resp, Not> {
     }
     #[inline]
     pub const fn response(response: Resp, id: RequestId) -> Self {
-        JsonRpcMessage::Response(JsonRpcResponse {
+        Self::Response(JsonRpcResponse {
             jsonrpc: JsonRpcVersion2_0,
             id,
             result: response,
@@ -564,7 +564,7 @@ impl<Req, Resp, Not> JsonRpcMessage<Req, Resp, Not> {
     }
     #[inline]
     pub const fn error(error: ErrorData, id: RequestId) -> Self {
-        JsonRpcMessage::Error(JsonRpcError {
+        Self::Error(JsonRpcError {
             jsonrpc: JsonRpcVersion2_0,
             id,
             error,
@@ -572,39 +572,39 @@ impl<Req, Resp, Not> JsonRpcMessage<Req, Resp, Not> {
     }
     #[inline]
     pub const fn notification(notification: Not) -> Self {
-        JsonRpcMessage::Notification(JsonRpcNotification {
+        Self::Notification(JsonRpcNotification {
             jsonrpc: JsonRpcVersion2_0,
             notification,
         })
     }
     pub fn into_request(self) -> Option<(Req, RequestId)> {
         match self {
-            JsonRpcMessage::Request(r) => Some((r.request, r.id)),
+            Self::Request(r) => Some((r.request, r.id)),
             _ => None,
         }
     }
     pub fn into_response(self) -> Option<(Resp, RequestId)> {
         match self {
-            JsonRpcMessage::Response(r) => Some((r.result, r.id)),
+            Self::Response(r) => Some((r.result, r.id)),
             _ => None,
         }
     }
     pub fn into_notification(self) -> Option<Not> {
         match self {
-            JsonRpcMessage::Notification(n) => Some(n.notification),
+            Self::Notification(n) => Some(n.notification),
             _ => None,
         }
     }
     pub fn into_error(self) -> Option<(ErrorData, RequestId)> {
         match self {
-            JsonRpcMessage::Error(e) => Some((e.error, e.id)),
+            Self::Error(e) => Some((e.error, e.id)),
             _ => None,
         }
     }
     pub fn into_result(self) -> Option<(Result<Resp, ErrorData>, RequestId)> {
         match self {
-            JsonRpcMessage::Response(r) => Some((Ok(r.result), r.id)),
-            JsonRpcMessage::Error(e) => Some((Err(e.error), e.id)),
+            Self::Response(r) => Some((Ok(r.result), r.id)),
+            Self::Error(e) => Some((Err(e.error), e.id)),
 
             _ => None,
         }
@@ -733,7 +733,7 @@ impl Default for Implementation {
 
 impl Implementation {
     pub fn from_build_env() -> Self {
-        Implementation {
+        Self {
             name: env!("CARGO_CRATE_NAME").to_owned(),
             version: env!("CARGO_PKG_VERSION").to_owned(),
         }
@@ -1198,14 +1198,14 @@ pub struct CallToolResult {
 impl CallToolResult {
     /// Create a successful tool result
     pub fn success(content: Vec<Content>) -> Self {
-        CallToolResult {
+        Self {
             content,
             is_error: Some(false),
         }
     }
     /// Create an error tool result
     pub fn error(content: Vec<Content>) -> Self {
-        CallToolResult {
+        Self {
             content,
             is_error: Some(true),
         }
@@ -1322,8 +1322,8 @@ ts_union!(
 );
 
 impl ClientResult {
-    pub fn empty(_: ()) -> ClientResult {
-        ClientResult::EmptyResult(EmptyResult {})
+    pub fn empty(_: ()) -> Self {
+        Self::EmptyResult(EmptyResult {})
     }
 }
 
@@ -1363,17 +1363,17 @@ ts_union!(
 );
 
 impl ServerResult {
-    pub fn empty(_: ()) -> ServerResult {
-        ServerResult::EmptyResult(EmptyResult {})
+    pub fn empty(_: ()) -> Self {
+        Self::EmptyResult(EmptyResult {})
     }
 }
 
 pub type ServerJsonRpcMessage = JsonRpcMessage<ServerRequest, ServerResult, ServerNotification>;
 
 impl TryInto<CancelledNotification> for ServerNotification {
-    type Error = ServerNotification;
+    type Error = Self;
     fn try_into(self) -> Result<CancelledNotification, Self::Error> {
-        if let ServerNotification::CancelledNotification(t) = self {
+        if let Self::CancelledNotification(t) = self {
             Ok(t)
         } else {
             Err(self)
@@ -1382,9 +1382,9 @@ impl TryInto<CancelledNotification> for ServerNotification {
 }
 
 impl TryInto<CancelledNotification> for ClientNotification {
-    type Error = ClientNotification;
+    type Error = Self;
     fn try_into(self) -> Result<CancelledNotification, Self::Error> {
-        if let ClientNotification::CancelledNotification(t) = self {
+        if let Self::CancelledNotification(t) = self {
             Ok(t)
         } else {
             Err(self)
@@ -1393,13 +1393,13 @@ impl TryInto<CancelledNotification> for ClientNotification {
 }
 impl From<CancelledNotification> for ServerNotification {
     fn from(value: CancelledNotification) -> Self {
-        ServerNotification::CancelledNotification(value)
+        Self::CancelledNotification(value)
     }
 }
 
 impl From<CancelledNotification> for ClientNotification {
     fn from(value: CancelledNotification) -> Self {
-        ClientNotification::CancelledNotification(value)
+        Self::CancelledNotification(value)
     }
 }
 

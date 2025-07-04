@@ -133,7 +133,7 @@ impl Meta {
         };
     }
 
-    pub fn extend(&mut self, other: Meta) {
+    pub fn extend(&mut self, other: Self) {
         for (k, v) in other.0.into_iter() {
             self.0.insert(k, v);
         }
@@ -161,16 +161,16 @@ where
 {
     pub fn insert_extension<T: Clone + Send + Sync + 'static>(&mut self, value: T) {
         match self {
-            JsonRpcMessage::Request(json_rpc_request) => {
+            Self::Request(json_rpc_request) => {
                 json_rpc_request.request.extensions_mut().insert(value);
             }
-            JsonRpcMessage::Notification(json_rpc_notification) => {
+            Self::Notification(json_rpc_notification) => {
                 json_rpc_notification
                     .notification
                     .extensions_mut()
                     .insert(value);
             }
-            JsonRpcMessage::BatchRequest(json_rpc_batch_request_items) => {
+            Self::BatchRequest(json_rpc_batch_request_items) => {
                 for item in json_rpc_batch_request_items {
                     match item {
                         super::JsonRpcBatchRequestItem::Request(json_rpc_request) => {

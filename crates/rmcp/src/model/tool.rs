@@ -83,31 +83,31 @@ impl ToolAnnotations {
     where
         T: Into<String>,
     {
-        ToolAnnotations {
+        Self {
             title: Some(title.into()),
             ..Self::default()
         }
     }
     pub fn read_only(self, read_only: bool) -> Self {
-        ToolAnnotations {
+        Self {
             read_only_hint: Some(read_only),
             ..self
         }
     }
     pub fn destructive(self, destructive: bool) -> Self {
-        ToolAnnotations {
+        Self {
             destructive_hint: Some(destructive),
             ..self
         }
     }
     pub fn idempotent(self, idempotent: bool) -> Self {
-        ToolAnnotations {
+        Self {
             idempotent_hint: Some(idempotent),
             ..self
         }
     }
     pub fn open_world(self, open_world: bool) -> Self {
-        ToolAnnotations {
+        Self {
             open_world_hint: Some(open_world),
             ..self
         }
@@ -132,7 +132,7 @@ impl Tool {
         D: Into<Cow<'static, str>>,
         S: Into<Arc<JsonObject>>,
     {
-        Tool {
+        Self {
             name: name.into(),
             description: Some(description.into()),
             input_schema: input_schema.into(),
@@ -141,7 +141,7 @@ impl Tool {
     }
 
     pub fn annotate(self, annotations: ToolAnnotations) -> Self {
-        Tool {
+        Self {
             annotations: Some(annotations),
             ..self
         }

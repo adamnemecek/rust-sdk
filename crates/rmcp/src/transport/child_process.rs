@@ -99,7 +99,7 @@ impl TokioChildProcess {
     }
 
     pub fn split(self) -> (TokioChildProcessOut, ChildStdin) {
-        let TokioChildProcess {
+        let Self {
             child,
             child_stdin,
             child_stdout,

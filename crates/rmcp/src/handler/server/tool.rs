@@ -219,7 +219,7 @@ where
                     None,
                 )
             })?;
-        Ok(Parameters(value))
+        Ok(Self(value))
     }
 }
 
@@ -255,7 +255,7 @@ where
                     None,
                 )
             })?;
-        Ok(Extension(extension))
+        Ok(Self(extension))
     }
 }
 
@@ -268,7 +268,7 @@ impl<S> FromToolCallContextPart<S> for crate::Peer<RoleServer> {
 
 impl<S> FromToolCallContextPart<S> for crate::model::Meta {
     fn from_tool_call_context_part(context: &mut ToolCallContext<S>) -> Result<Self, crate::Error> {
-        let mut meta = crate::model::Meta::default();
+        let mut meta = Self::default();
         std::mem::swap(&mut meta, &mut context.request_context.meta);
         Ok(meta)
     }
@@ -277,7 +277,7 @@ impl<S> FromToolCallContextPart<S> for crate::model::Meta {
 pub struct RequestId(pub crate::model::RequestId);
 impl<S> FromToolCallContextPart<S> for RequestId {
     fn from_tool_call_context_part(context: &mut ToolCallContext<S>) -> Result<Self, crate::Error> {
-        Ok(RequestId(context.request_context.id.clone()))
+        Ok(Self(context.request_context.id.clone()))
     }
 }
 

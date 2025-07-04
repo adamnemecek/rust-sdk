@@ -71,7 +71,7 @@ impl SseClientTransport<reqwest::Client> {
     pub async fn start(
         uri: impl Into<Arc<str>>,
     ) -> Result<Self, SseTransportError<reqwest::Error>> {
-        SseClientTransport::start_with_client(
+        Self::start_with_client(
             reqwest::Client::default(),
             SseClientConfig {
                 sse_endpoint: uri.into(),

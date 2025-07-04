@@ -47,17 +47,17 @@ pub enum McpServerTransportConfig {
 impl McpServerTransportConfig {
     pub async fn start(&self) -> Result<RunningService<RoleClient, ()>> {
         let client = match self {
-            McpServerTransportConfig::Streamable { url } => {
+            Self::Streamable { url } => {
                 let transport =
                     rmcp::transport::StreamableHttpClientTransport::from_uri(url.to_string());
                 ().serve(transport).await?
             }
-            McpServerTransportConfig::Sse { url } => {
+            Self::Sse { url } => {
                 let transport =
                     rmcp::transport::sse_client::SseClientTransport::start(url.to_owned()).await?;
                 ().serve(transport).await?
             }
-            McpServerTransportConfig::Stdio {
+            Self::Stdio {
                 command,
                 args,
                 envs,

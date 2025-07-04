@@ -28,7 +28,7 @@ impl Annotations {
             (0.0..=1.0).contains(&priority),
             "Priority {priority} must be between 0.0 and 1.0"
         );
-        Annotations {
+        Self {
             priority: Some(priority),
             timestamp: Some(timestamp),
             audience: None,
@@ -74,12 +74,12 @@ impl<T: AnnotateAble> Annotated<T> {
     pub fn timestamp(&self) -> Option<DateTime<Utc>> {
         self.annotations.as_ref().and_then(|a| a.timestamp)
     }
-    pub fn with_audience(self, audience: Vec<Role>) -> Annotated<T>
+    pub fn with_audience(self, audience: Vec<Role>) -> Self
     where
         Self: Sized,
     {
         if let Some(annotations) = self.annotations {
-            Annotated {
+            Self {
                 raw: self.raw,
                 annotations: Some(Annotations {
                     audience: Some(audience),
@@ -87,7 +87,7 @@ impl<T: AnnotateAble> Annotated<T> {
                 }),
             }
         } else {
-            Annotated {
+            Self {
                 raw: self.raw,
                 annotations: Some(Annotations {
                     audience: Some(audience),
@@ -97,12 +97,12 @@ impl<T: AnnotateAble> Annotated<T> {
             }
         }
     }
-    pub fn with_priority(self, priority: f32) -> Annotated<T>
+    pub fn with_priority(self, priority: f32) -> Self
     where
         Self: Sized,
     {
         if let Some(annotations) = self.annotations {
-            Annotated {
+            Self {
                 raw: self.raw,
                 annotations: Some(Annotations {
                     priority: Some(priority),
@@ -110,7 +110,7 @@ impl<T: AnnotateAble> Annotated<T> {
                 }),
             }
         } else {
-            Annotated {
+            Self {
                 raw: self.raw,
                 annotations: Some(Annotations {
                     priority: Some(priority),
@@ -120,12 +120,12 @@ impl<T: AnnotateAble> Annotated<T> {
             }
         }
     }
-    pub fn with_timestamp(self, timestamp: DateTime<Utc>) -> Annotated<T>
+    pub fn with_timestamp(self, timestamp: DateTime<Utc>) -> Self
     where
         Self: Sized,
     {
         if let Some(annotations) = self.annotations {
-            Annotated {
+            Self {
                 raw: self.raw,
                 annotations: Some(Annotations {
                     timestamp: Some(timestamp),
@@ -133,7 +133,7 @@ impl<T: AnnotateAble> Annotated<T> {
                 }),
             }
         } else {
-            Annotated {
+            Self {
                 raw: self.raw,
                 annotations: Some(Annotations {
                     timestamp: Some(timestamp),
@@ -143,7 +143,7 @@ impl<T: AnnotateAble> Annotated<T> {
             }
         }
     }
-    pub fn with_timestamp_now(self) -> Annotated<T>
+    pub fn with_timestamp_now(self) -> Self
     where
         Self: Sized,
     {

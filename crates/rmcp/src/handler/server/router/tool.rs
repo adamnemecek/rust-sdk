@@ -86,7 +86,7 @@ impl<S> IntoToolRoute<S, ()> for ToolRoute<S>
 where
     S: Send + Sync + 'static,
 {
-    fn into_tool_route(self) -> ToolRoute<S> {
+    fn into_tool_route(self) -> Self {
         self
     }
 }
@@ -222,7 +222,7 @@ where
         self.map.insert(item.attr.name.clone(), item);
     }
 
-    pub fn merge(&mut self, other: ToolRouter<S>) {
+    pub fn merge(&mut self, other: Self) {
         for item in other.map.into_values() {
             self.add_route(item);
         }
@@ -250,23 +250,23 @@ where
     }
 }
 
-impl<S> std::ops::Add<ToolRouter<S>> for ToolRouter<S>
+impl<S> std::ops::Add<Self> for ToolRouter<S>
 where
     S: Send + Sync + 'static,
 {
     type Output = Self;
 
-    fn add(mut self, other: ToolRouter<S>) -> Self::Output {
+    fn add(mut self, other: Self) -> Self::Output {
         self.merge(other);
         self
     }
 }
 
-impl<S> std::ops::AddAssign<ToolRouter<S>> for ToolRouter<S>
+impl<S> std::ops::AddAssign<Self> for ToolRouter<S>
 where
     S: Send + Sync + 'static,
 {
-    fn add_assign(&mut self, other: ToolRouter<S>) {
+    fn add_assign(&mut self, other: Self) {
         self.merge(other);
     }
 }

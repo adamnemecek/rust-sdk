@@ -33,7 +33,7 @@ impl Prompt {
         N: Into<String>,
         D: Into<String>,
     {
-        Prompt {
+        Self {
             name: name.into(),
             description: description.map(Into::into),
             arguments,

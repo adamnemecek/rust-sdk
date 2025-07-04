@@ -751,10 +751,7 @@ impl OAuthState {
             self,
             Self::Authorized(AuthorizationManager::new("http://localhost").await?),
         ) {
-            *self = Self::AuthorizedHttpClient(AuthorizedHttpClient::new(
-                Arc::new(manager),
-                None,
-            ));
+            *self = Self::AuthorizedHttpClient(AuthorizedHttpClient::new(Arc::new(manager), None));
             Ok(())
         } else {
             Err(AuthError::InternalError(
@@ -769,9 +766,7 @@ impl OAuthState {
             Self::Unauthorized(_) => {
                 Err(AuthError::InternalError("Not in session state".to_string()))
             }
-            Self::Authorized(_) => {
-                Err(AuthError::InternalError("Already authorized".to_string()))
-            }
+            Self::Authorized(_) => Err(AuthError::InternalError("Already authorized".to_string())),
             Self::AuthorizedHttpClient(_) => {
                 Err(AuthError::InternalError("Already authorized".to_string()))
             }
@@ -788,9 +783,7 @@ impl OAuthState {
             Self::Unauthorized(_) => {
                 Err(AuthError::InternalError("Not in session state".to_string()))
             }
-            Self::Authorized(_) => {
-                Err(AuthError::InternalError("Already authorized".to_string()))
-            }
+            Self::Authorized(_) => Err(AuthError::InternalError("Already authorized".to_string())),
             Self::AuthorizedHttpClient(_) => {
                 Err(AuthError::InternalError("Already authorized".to_string()))
             }
@@ -801,12 +794,8 @@ impl OAuthState {
     pub async fn get_access_token(&self) -> Result<String, AuthError> {
         match self {
             Self::Unauthorized(manager) => manager.get_access_token().await,
-            Self::Session(_) => {
-                Err(AuthError::InternalError("Not in manager state".to_string()))
-            }
-            Self::Authorized(_) => {
-                Err(AuthError::InternalError("Already authorized".to_string()))
-            }
+            Self::Session(_) => Err(AuthError::InternalError("Not in manager state".to_string())),
+            Self::Authorized(_) => Err(AuthError::InternalError("Already authorized".to_string())),
             Self::AuthorizedHttpClient(_) => {
                 Err(AuthError::InternalError("Already authorized".to_string()))
             }
@@ -819,9 +808,7 @@ impl OAuthState {
             Self::Unauthorized(_) => {
                 Err(AuthError::InternalError("Not in manager state".to_string()))
             }
-            Self::Session(_) => {
-                Err(AuthError::InternalError("Not in manager state".to_string()))
-            }
+            Self::Session(_) => Err(AuthError::InternalError("Not in manager state".to_string())),
             Self::Authorized(manager) => {
                 manager.refresh_token().await?;
                 Ok(())
